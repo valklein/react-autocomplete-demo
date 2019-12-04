@@ -22,8 +22,7 @@ class AutoComplete extends React.Component {
   renderSuggestion = suggestion => {
     return (
       <div className="result">
-        <div>{suggestion.fullName}</div>
-        <div className="shortCode">{suggestion.shortCode}</div>
+         <div>{suggestion.display}</div>
       </div>
     )
   }
@@ -33,18 +32,31 @@ class AutoComplete extends React.Component {
   }
 
   onSuggestionsFetchRequested = ({ value }) => {
-    axios
-      .post('http://localhost:9200/crm_app/customers/_search', {
-        query: {
-          multi_match: {
-            query: value,
-            fields: ['fullName', 'shortCode']
+
+const client = axios.create({
+    baseURL: 'http://localhost:8989/suggest/suggest'
+});
+
+client.defaults.headers['Content-Type'] = 'application/json';
+
+
+    client
+      .post('http://localhost:8989/suggest/suggest', {
+        suggest: {
+          songsuggest: {
+            prefix: value,
+	    completion: {
+		field : "suggests"
+	    },
+	    highlight: {
+		field: "display"
+	    }
           }
-        },
-        sort: ['_score', { createdDate: 'desc' }]
+        }
       })
       .then(res => {
-        const results = res.data.hits.hits.map(h => h._source)
+        console.log(res.data.suggests)
+        const results = res.data.suggests.suggestions.map(h => h)
         this.setState({ suggestions: results })
       })
   }
@@ -57,24 +69,23 @@ class AutoComplete extends React.Component {
     const { value, suggestions } = this.state
 
     const inputProps = {
-      placeholder: 'customer name or short code',
+      placeholder: 'place or street name or zip code',
       value,
       onChange: this.onChange
     }
-
     return (
       <div className="App">
-        <h1>AutoComplete Demo</h1>
+        <h1>AutoComplete Lucino Server Demo</h1>
         <Autosuggest
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-          getSuggestionValue={suggestion => suggestion.fullName}
+          getSuggestionValue={suggestion => suggestion.display}
           renderSuggestion={this.renderSuggestion}
           inputProps={inputProps}
         />
       </div>
-    )
+   )
   }
 }
 
