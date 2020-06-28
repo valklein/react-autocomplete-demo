@@ -34,16 +34,16 @@ class AutoComplete extends React.Component {
   onSuggestionsFetchRequested = ({ value }) => {
 
 const client = axios.create({
-    baseURL: 'http://localhost:8989/suggest/suggest'
+    baseURL: 'http://192.168.0.10:8375/suggest'
 });
 
 client.defaults.headers['Content-Type'] = 'application/json';
 
 
     client
-      .post('http://localhost:8989/suggest/suggest', {
+      .post('http://192.168.0.10:8375/suggest', {
         suggest: {
-          songsuggest: {
+          mysuggest: {
             prefix: value,
 	    completion: {
 		field : "suggests"
@@ -56,8 +56,10 @@ client.defaults.headers['Content-Type'] = 'application/json';
       })
       .then(res => {
         console.log(res.data.suggests)
-        const results = res.data.suggests.suggestions.map(h => h)
-        this.setState({ suggestions: results })
+        if (res.data.suggests.suggestions!=null) {
+          const results = res.data.suggests.suggestions.map(h => h)
+          this.setState({ suggestions: results })
+        }
       })
   }
 
