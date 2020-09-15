@@ -34,14 +34,14 @@ class AutoComplete extends React.Component {
   onSuggestionsFetchRequested = ({ value }) => {
 
 const client = axios.create({
-    baseURL: 'http://192.168.0.10:8375/suggest'
+    baseURL: 'http://suggest-svc:8375/suggest'
 });
 
 client.defaults.headers['Content-Type'] = 'application/json';
 
 
     client
-      .post('http://192.168.0.10:8375/suggest', {
+      .post('http://suggest-svc:8375/suggest', {
         suggest: {
           mysuggest: {
             prefix: value,
